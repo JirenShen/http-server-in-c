@@ -45,16 +45,19 @@ int main(){
         return 1;
     }
     
-    struct sockaddr_sotragre their_addr; //this struct will hold the client address information
+    struct sockaddr_storage their_addr; //this struct will hold the client address information
     socklen_t addr_size = sizeof(their_addr);
-    memset(&their_addr, 0, sizeof(their_addr)); //zero out the struct
 
     int client_sockfd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size); //accept a connection, return a new socket file descriptor for the accepted connection`
-
-    while(1){
-        //some kind of request must be received here.
-        printf("%s\n", "Waiting for request...");
-        sleep(1);
+    
+    int max_len = 1024;
+    char buffer[max_len];
+    memset(buffer, 0, max_len);
+    int bytes_received = recv(client_sockfd, buffer, max_len - 1, 0); //receive data from the client
+    puts(buffer); //print the received data to stdout
+    if(strncmp(buffer, "GET", 3)==0){
+        printf("Received a GET request\n");
     }
+
     return 0;
 }
