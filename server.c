@@ -54,10 +54,31 @@ int main(){
     char buffer[max_len];
     memset(buffer, 0, max_len);
     int bytes_received = recv(client_sockfd, buffer, max_len - 1, 0); //receive data from the client
-    puts(buffer); //print the received data to stdout
+    //puts(buffer); //print the received data to stdout
     if(strncmp(buffer, "GET", 3)==0){
         printf("Received a GET request\n");
-    }
 
+        // Create the HTTP response
+        char *response = "HTTP/1.1 200 OK\r\n"
+                         "Content-Type: text/html\r\n"
+                         "Content-Length: 17943\r\n"
+                        // "Connection: close\r\n"
+                         "\r\n";
+        send(client_sockfd, response, strlen(response), 0);
+        
+        FILE *file = fopen("index.html", "r");
+        char c[1000000];
+        char d;
+        memset(c, 0, sizeof(c));
+        while((d = (fgetc(file))) != EOF) {
+            strncat(c, &d, 1);
+        }
+        fclose(file);
+        send(client_sockfd, c, strlen(c), 0);
+    }
+    else{
+        return 1;
+    }
+    close(client_sockfd);
     return 0;
 }
